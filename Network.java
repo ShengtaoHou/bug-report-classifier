@@ -18,7 +18,7 @@ public class Network {
         try {
 
             int edgeNum=0;
-            File fXmlFile = new File("C:\\code\\idea\\BugReportClassifier\\data\\data2.xml");
+            File fXmlFile = new File("C:\\code\\idea\\BugReportClassifier\\data\\train_data_active_developer.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(fXmlFile);

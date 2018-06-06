@@ -1,44 +1,61 @@
 /**
  * Created by 29952 on 2018/4/10.
  */
-import java.io.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.HashMap;
 
 public class BuildDeveloperTable {
     public HashMap<String, Integer> build() {
         HashMap<String,Integer> map=new HashMap<String,Integer>();
-        // The name of the file to open.
-        String fileName = "C:\\code\\idea\\BugReportClassifier\\data\\developer.txt";
-
-        // This will reference one line at a time
-        String line = null;
+        String FILE = "C:\\code\\idea\\BugReportClassifier\\data\\developer.xml";
 
         try {
-            // FileReader reads text files in the default encoding.
-            FileReader fileReader =
-                    new FileReader(fileName);
-
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader =
-                    new BufferedReader(fileReader);
-            int id=1;
-            while(id<=154&&(line = bufferedReader.readLine()) != null) {
-                map.put(line,id++);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(FILE);
+            doc.getDocumentElement().normalize();
+            NodeList nList = doc.getElementsByTagName("label");
+            int devID=1;
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+                Node nNode = nList.item(temp);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) nNode;
+                    String name=eElement.getAttribute("name");
+                    map.put(name,devID++);
+                }
             }
-            // Always close files.
-            bufferedReader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        catch(FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file '" +
-                            fileName + "'");
-        }
-        catch(IOException ex) {
-            System.out.println(
-                    "Error reading file '"
-                            + fileName + "'");
-            // Or we could just do this:
-            // ex.printStackTrace();
+        return map;
+    }
+    public HashMap<Integer,String> build2() {
+        HashMap<Integer,String> map=new HashMap<Integer,String>();
+        String FILE = "C:\\code\\idea\\BugReportClassifier\\data\\developer.xml";
+
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(FILE);
+            doc.getDocumentElement().normalize();
+            NodeList nList = doc.getElementsByTagName("label");
+            int devID=1;
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+                Node nNode = nList.item(temp);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) nNode;
+                    String name=eElement.getAttribute("name");
+                    map.put(devID++,name);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return map;
     }

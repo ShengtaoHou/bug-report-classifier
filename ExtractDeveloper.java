@@ -1,6 +1,12 @@
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -11,48 +17,47 @@ import java.util.HashMap;
 public class ExtractDeveloper{
     public static HashMap<String,Integer> map=new HashMap<>();
     public static void main(String[] args){
-        for(int i=169401;i<=212901;i+=100){
-            int j=i+99;
-            String urlname="C:\\code\\idea\\BugReportClassifier\\data\\bugs"+i+"-"+j+".xml";
+            String DATA_FILE="C:\\code\\idea\\BugReportClassifier\\data\\train_data.xml";
+            String DEV_FILE="C:\\code\\idea\\BugReportClassifier\\data\\developer.xml";
+            int devnum=0;
             try {
-                //C:\Users\29952\Desktop\final\dataset\bugs000001-000100.xml
-                File fXmlFile = new File(urlname);
+                File dataFile = new File(DATA_FILE);
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(fXmlFile);
-
-                //optional, but recommended
-                //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+                Document doc = dBuilder.parse(dataFile);
                 doc.getDocumentElement().normalize();
+                NodeList nList = doc.getElementsByTagName("developer");
 
-                //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-                NodeList nList = doc.getElementsByTagName("who");
-
-                System.out.println(urlname);
+                Document doc2 = dBuilder.newDocument();  //筛选后的存入的xml文件
+                Element rootElement = doc2.createElement("labels");
+                doc2.appendChild(rootElement);
 
                 for (int temp = 0; temp < nList.getLength(); temp++) {
                     Node nNode = nList.item(temp);
                     if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element eElement = (Element) nNode;
-                        String name=eElement.getAttribute("name");
-                        //System.out.println("who : " + name);
+                        String name=eElement.getTextContent();
                         map.put(name,map.getOrDefault(name,0)+1);
                     }
                 }
+                for(String str:map.keySet()){
+                    if(map.get(str)>=240){
+                        Element label= doc2.createElement("label");
+                        label.setAttribute("name",str);
+                        rootElement.appendChild(label);
+                        devnum++;
+                    }
+                }
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                DOMSource source = new DOMSource(doc2);
+                //System.out.println(outputPath);
+                StreamResult result1 = new StreamResult(new File(DEV_FILE));
+                transformer.transform(source, result1);
+                System.out.println("devnum: "+ devnum);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        for(String str:map.keySet()){
-            System.out.println(str+": "+map.get(str));
-        }
-        for(String str:map.keySet()){
-            System.out.println(str);
-        }
-        for(String str:map.keySet()){
-            System.out.println(map.get(str));
-        }
-    }
-
-}
+    }//main
+}//class
